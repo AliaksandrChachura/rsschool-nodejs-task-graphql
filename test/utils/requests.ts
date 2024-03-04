@@ -25,7 +25,8 @@ export async function gqlQuery(
     method: 'POST',
     body: dto,
   });
-  const body = (await res.json()) as Static<typeof gqlResponseSchema>;
+  
+  const body = (await res.json()) as Static<typeof gqlResponseSchema>; 
   return { res, body };
 }
 
@@ -62,6 +63,7 @@ export async function getMemberTypes(app: FastifyInstance) {
     method: 'GET',
   });
   const body = (await res.json()) as MemberTypeBody[];
+  
   return { res, body };
 }
 
