@@ -19,10 +19,12 @@ await test('gql-queries', async (t) => {
 
   await t.test('Get all resources.', async (t) => {
     const { body: user1 } = await createUser(app);
+    
     await createPost(app, user1.id);
     await createProfile(app, user1.id, MemberTypeId.BASIC);
 
     const { body: memberTypes } = await getMemberTypes(app);
+    
     const { body: posts } = await getPosts(app);
     const { body: users } = await getUsers(app);
     const { body: profiles } = await getProfiles(app);
@@ -51,9 +53,9 @@ await test('gql-queries', async (t) => {
             isMale
             yearOfBirth
         }
-    }`,
+      }`,
     });
-
+    
     t.ok(data.memberTypes.length === memberTypes.length);
     t.ok(data.posts.length === posts.length);
     t.ok(data.users.length === users.length);
