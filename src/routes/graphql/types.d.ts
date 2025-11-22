@@ -1,25 +1,28 @@
 import { UUIDType } from './types/uuid.js';
+import { MemberTypeId } from '../member-types/schemas.js';
 
-export const User = {
+type MemberTypeIdEnum = `${MemberTypeId}`; 
+
+type User = {
   id: UUIDType,
   name: string,
   balance: float,
 };
 
-export const MemberType = {
+type MemberType = {
   id: MemberTypeId,
   discount: float,
   postsLimitPerMonth: int,
 };
 
-export const Post = {
+type Post = {
   id: UUIDType,
   title: string,
   content: string,
   authorId: UUIDType,
 };
 
-export const Profile = {
+type Profile = {
   id: UUIDType,
   isMale: boolean,
   yearOfBirth: int,
@@ -27,5 +30,4 @@ export const Profile = {
   memberTypeId: MemberTypeId,
 };
 
-
-
+export { User, MemberType, Post, Profile, MemberTypeIdEnum };
