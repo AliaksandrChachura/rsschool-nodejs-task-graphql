@@ -11,46 +11,36 @@ export const User = new GraphQLObjectType({
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     profile: {
       type: Profile,
-      resolve: async (parent, _args, { prisma }) => {
-        return prisma.profile.findUnique({
-          where: { userId: parent.id },
-        });
+      resolve: async (parent, _args, { loaders }) => {
+        return loaders.profilesByUserId.load(parent.id);
       },
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Post))),
-      resolve: async (parent, _args, { prisma }) => {
-        return prisma.post.findMany({
-          where: { authorId: parent.id },
-        });
+      resolve: async (parent, _args, { loaders }) => {
+        return loaders.postsByAuthorId.load(parent.id);
       },
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent, _args, { prisma }) => {
-        const subscriptions = await prisma.subscribersOnAuthors.findMany({
-          where: { subscriberId: parent.id },
-          select: { authorId: true },
-        });
+      resolve: async (parent, _args, { loaders }) => {
+        const subscriptions = await loaders.subscriptionsBySubscriberId.load(parent.id);
         const authorIds = subscriptions.map((sub) => sub.authorId);
         if (authorIds.length === 0) return [];
-        return prisma.user.findMany({
-          where: { id: { in: authorIds } },
-        });
+        return Promise.all(authorIds.map((id) => loaders.usersById.load(id))).then((users) =>
+          users.filter((user) => user !== null)
+        );
       },
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent, _args, { prisma }) => {
-        const subscriptions = await prisma.subscribersOnAuthors.findMany({
-          where: { authorId: parent.id },
-          select: { subscriberId: true },
-        });
+      resolve: async (parent, _args, { loaders }) => {
+        const subscriptions = await loaders.subscriptionsByAuthorId.load(parent.id);
         const subscriberIds = subscriptions.map((sub) => sub.subscriberId);
         if (subscriberIds.length === 0) return [];
-        return prisma.user.findMany({
-          where: { id: { in: subscriberIds } },
-        });
+        return Promise.all(subscriberIds.map((id) => loaders.usersById.load(id))).then((users) =>
+          users.filter((user) => user !== null)
+        );
       },
     },
   }),

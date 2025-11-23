@@ -30,4 +30,14 @@ type Profile = {
   memberTypeId: MemberTypeId,
 };
 
-export { User, MemberType, Post, Profile, MemberTypeIdEnum };
+type SubscriptionData = {
+  subscriberId: string;
+  authorId: string;
+};
+
+type SubscriptionsByUser = {
+  asSubscriber: SubscriptionData[];
+  asAuthor: SubscriptionData[];
+};
+
+export { User, MemberType, Post, Profile, MemberTypeIdEnum, SubscriptionData, SubscriptionsByUser };
