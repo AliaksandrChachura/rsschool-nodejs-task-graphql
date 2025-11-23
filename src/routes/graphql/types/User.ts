@@ -23,7 +23,19 @@ export const User = new GraphQLObjectType({
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent, _args, { loaders }) => {
+      resolve: async (parent: any, _args, { loaders }) => {
+        if (parent.userSubscribedTo && Array.isArray(parent.userSubscribedTo)) {
+          const firstItem = parent.userSubscribedTo[0];
+          if (firstItem && typeof firstItem === 'object' && 'authorId' in firstItem && !('id' in firstItem && 'name' in firstItem)) {
+            const authorIds = parent.userSubscribedTo.map((sub: any) => sub.authorId).filter((id: any) => id);
+            if (authorIds.length === 0) return [];
+            return Promise.all(authorIds.map((id: string) => loaders.usersById.load(id))).then((users) =>
+              users.filter((user) => user !== null)
+            );
+          }
+          return parent.userSubscribedTo;
+        }
+        
         const subscriptions = await loaders.subscriptionsBySubscriberId.load(parent.id);
         const authorIds = subscriptions.map((sub) => sub.authorId);
         if (authorIds.length === 0) return [];
@@ -34,7 +46,19 @@ export const User = new GraphQLObjectType({
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(User))),
-      resolve: async (parent, _args, { loaders }) => {
+      resolve: async (parent: any, _args, { loaders }) => {
+        if (parent.subscribedToUser && Array.isArray(parent.subscribedToUser)) {
+          const firstItem = parent.subscribedToUser[0];
+          if (firstItem && typeof firstItem === 'object' && 'subscriberId' in firstItem && !('id' in firstItem && 'name' in firstItem)) {
+            const subscriberIds = parent.subscribedToUser.map((sub: any) => sub.subscriberId).filter((id: any) => id);
+            if (subscriberIds.length === 0) return [];
+            return Promise.all(subscriberIds.map((id: string) => loaders.usersById.load(id))).then((users) =>
+              users.filter((user) => user !== null)
+            );
+          }
+          return parent.subscribedToUser;
+        }
+        
         const subscriptions = await loaders.subscriptionsByAuthorId.load(parent.id);
         const subscriberIds = subscriptions.map((sub) => sub.subscriberId);
         if (subscriberIds.length === 0) return [];
